@@ -1,0 +1,90 @@
+
+# Schema can be found here:
+# https://github.com/arunsftp/AzureDevOps-Blueprints/blob/1.1.0/templates/pipelines/infrastructure/readme.md
+
+#################################################
+# Resources
+#################################################
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/multi-repo-checkout
+resources:
+  repositories:
+    - repository: Blueprints
+      type: github
+      endpoint: 'github.com_arunsftp' # 'Github Service Connection'
+      name: arunsftp/AAzureDevOps-Blueprints
+      #ref: refs/tags/v1.4.31
+
+#################################################
+# Triggers
+#################################################
+pr: none
+trigger: none
+
+#################################################
+# Parameters
+#################################################
+parameters:
+  - name: appServices
+    type: object
+    default:
+      - applicationServiceID: 'mcp-eks-ebus-dev-green'
+        workspace: 'mcp-eks-ebus-dev-green'
+        stack: 'default'
+        approvalGate: true
+        approvalEnvName: nonprod_aws # Point to you aws non-prod aws-account   # or nonprod_azure
+        changeEnabled: true
+        changeNumber: NONE_NEW_ONE_WILL_BE_CREATED
+        buildsheetUrl: ''
+        virtualMachineJob: true
+
+      - applicationServiceID: 'mcp-eks-ebus-dev-blue'
+        workspace: 'mcp-eks-ebus-dev-blue'
+        stack: 'default'
+        approvalGate: true
+        approvalEnvName: nonprod_aws # or nonprod_azure
+        changeEnabled: true
+        changeNumber: 'NONE_NEW_ONE_WILL_BE_CREATED'
+        buildsheetUrl: ''
+        virtualMachineJob: true
+
+      - applicationServiceID: 'mcp-eks-ebus-uat-blue'
+        workspace: 'mcp-eks-ebus-uat-blue'
+        stack: 'default'
+        dependsOn: 'mcp-eks-ebus-dev-blue'
+        approvalGate: true
+        approvalEnvName: nonprod_aws # Point to you aws prod aws-account # or prod_azure
+        changeEnabled: true
+        changeNumber: 'NONE_NEW_ONE_WILL_BE_CREATED'
+        buildsheetUrl: 'https://BUILDSHEETURL'
+        virtualMachineJob: true  
+
+      - applicationServiceID: 'mcp-eks-ebus-prod-blue'
+        workspace: 'mcp-eks-ebus-prod-blue'
+        stack: 'default'
+        dependsOn: 'mcp-eks-ebus-uat-blue'
+        approvalGate: true
+        approvalEnvName: prod_aws # or prod_azure
+        changeEnabled: false
+        changeNumber: 'NONE_NEW_ONE_WILL_BE_CREATED'
+        buildsheetUrl: 'https://BUILDSHEETURL'
+        virtualMachineJob: true
+
+#      - applicationServiceID: '<tla>-prod-<cloud>'
+#        dependsOn: '<tla>-uat-<cloud>'
+#        approvalGate: true
+#        approvalEnvName: prod_azure # or nonprod_gcp
+#        changeEnabled: false
+#        changeNumber: 'NONE_NEW_ONE_WILL_BE_CREATED'
+#        buildsheetUrl: 'https://BUILDSHEETURL'
+#        virtualMachineJob: true
+
+#################################################
+# Job Definition
+#################################################
+extends:
+  template: template/stages/tfe/deploy-appsvcs.yml@blueprints #templates/stages/tfe/deploy-appsvcs.yml@blueprints
+  parameters:
+     appServices:  ${{ parameters.appServices }}
+    # Uncomment in Sandpit
+    # windowsAgentPool: Enterprise
+     linuxAgentPool:  Azure Pipeline #azd-shared-rhel

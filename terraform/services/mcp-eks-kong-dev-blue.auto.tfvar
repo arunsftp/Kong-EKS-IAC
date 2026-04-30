@@ -1,0 +1,21 @@
+cluster_name = "mcp-eks-kong-dev-blue"
+kubernetes_version = "1.34"
+support_type = "STANDARD"
+cluster_role_arn = "arn:aws:iam::170884088935:role/AmazonEKSAutoClusterRole"
+subnet_ids = ["subnet-0d617441344beb94d", "subnet-05885998b7509fe97", "subnet-037b545b3ce3593be"]
+tags = {
+  Environment = "dev"
+  Cluster_Role = "Share/Dedicated"
+}
+node_role_arn = "arn:aws:iam::170884088935:role/AmazonEKSAutoNodeRole"
+desired_size = 2
+max_size = 3
+min_size = 1
+instance_types = ["t2.micro"]
+enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+vpc_cni_addon_version = "v1.21.1-eksbuild.1"
+vpc_cni_env_namespace = "eks-cni"
+ebs_csi_addon_version = "v1.24.0-eksbuild.1"
+kube_proxy_addon_version = "v1.30.4-eksbuild.1"
+kube_proxy_env_namespace = "eks-kube-proxy"
+ebs_csi_env_namespace = "eks-ebs-csi"
